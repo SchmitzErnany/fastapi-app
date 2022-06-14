@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "flask-app"
+version = "0.1.0"
+description = ""
+authors = ["SchmitzErnany <ernany0@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+Flask = "^2.1.1"
+mongoengine = "^0.24.1"
+python-dotenv = "^0.20.0"
+python-bsonjs = "^0.3.0"
+flasgger = "^0.9.5"
+PyJWT = "1.7.1"
+pyOpenSSL = "^22.0.0"
+secrets = "^1.0.2"
+python-dateutil = "^2.8.2"
+pydantic = "^1.9.0"
+fastapi = "^0.78.0"
+uvicorn = "^0.17.6"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
