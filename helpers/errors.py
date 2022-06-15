@@ -1,14 +1,17 @@
-from flask import make_response
+from fastapi.responses import JSONResponse
 
 
-def not_found(err):
+async def not_found(request, err):
     """Page not found."""
-    return make_response({'message': str(err)}, 404)
+    base_error_message = f"Failed to execute: {request.method}: {request.url}"
+    return JSONResponse({"message": f"{base_error_message}. Detail: {err}"}, status_code=404)
 
-def bad_request(err):
+async def bad_request(request, err):
     """Bad request."""
-    return make_response({'message': str(err)}, 400)
+    base_error_message = f"Failed to execute: {request.method}: {request.url}"
+    return JSONResponse({"message": f"{base_error_message}. Detail: {err}"}, status_code=400)
 
-def server_error(err):
+async def server_error(request, err):
     """Server error."""
-    return make_response({'message': str(err)}, 500)
+    base_error_message = f"Failed to execute: {request.method}: {request.url}"
+    return JSONResponse({"message": f"{base_error_message}. Detail: {err}"}, status_code=500)

@@ -1,12 +1,12 @@
-from flask import Blueprint
+from fastapi import APIRouter
 
 from .response_routes import responseroutes
 from .tag_routes import tagroutes
 from .user_routes import userroutes
 from .access_routes import accessroutes
 
-v1_routes = Blueprint('v1_routes', __name__)
-v1_routes.register_blueprint(responseroutes, url_prefix='/response')
-v1_routes.register_blueprint(tagroutes, url_prefix='/tag')
-v1_routes.register_blueprint(userroutes, url_prefix='/user')
-v1_routes.register_blueprint(accessroutes, url_prefix='/access')
+v1_routes = APIRouter()
+v1_routes.include_router(responseroutes, prefix='/response')
+v1_routes.include_router(tagroutes, prefix='/tag')
+v1_routes.include_router(userroutes, prefix='/user')
+v1_routes.include_router(accessroutes, prefix='/access')

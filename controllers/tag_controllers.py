@@ -1,13 +1,14 @@
 import json
-from flask import jsonify, make_response, request, g
+from flask import request
 
 from datetime import datetime
 from helpers.utils import prune_fields_tag, filter_deleted_tag
 
 from models.tag_model import Tag
+from fastapi.responses import JSONResponse
 
 
-def get_all():
+async def get_all():
     try:
         pipeline = [
             *filter_deleted_tag(),
@@ -15,12 +16,12 @@ def get_all():
         ]
         tags_raw = Tag.objects().aggregate(pipeline)
         tags = json.loads(json.dumps(list(tags_raw), default=str))
-        return make_response(jsonify(tags), 200)
+        return JSONResponse(tags, status_code=200)
     except Exception as err:
-        return make_response(jsonify({"message": str(err)}), 400)
+        return JSONResponse({"message": str(err)}, status_code=400)
 
 
-def get_by_id(id):
+async def get_by_id(id):
     try:
         pipeline = [
             *filter_deleted_tag(),
@@ -29,12 +30,12 @@ def get_by_id(id):
         tags_raw = Tag.objects(id=id).aggregate(pipeline)
         tags = json.loads(json.dumps(list(tags_raw), default=str))
         tag = tags[0] if tags else {}
-        return make_response(jsonify(tag), 200)
+        return JSONResponse(tag, status_code=200)
     except Exception as err:
-        return make_response(jsonify({"message": str(err)}), 400)
+        return JSONResponse({"message": str(err)}, status_code=400)
 
 
-def create():
+async def create():
     try:
         tag_saved_raw = Tag(**request.json).save()
         tag_saved_id = json.loads(tag_saved_raw.to_json())['_id']['$oid']
@@ -44,12 +45,12 @@ def create():
         ]  # for population of objects
         tag_raw = Tag.objects(id=tag_saved_id).aggregate(pipeline)
         tag = json.loads(json.dumps(list(tag_raw), default=str))[0]
-        return make_response(jsonify(tag), 200)
+        return JSONResponse(tag, status_code=200)
     except Exception as err:
-        return make_response(jsonify({"message": str(err)}), 400)
+        return JSONResponse({"message": str(err)}, status_code=400)
 
 
-def update(id):
+async def update(id):
     try:
         Tag.objects(id=id).update(**request.json, updated_at=datetime.utcnow)
         pipeline = [
@@ -58,12 +59,12 @@ def update(id):
         ]  # for population of objects
         tag_raw = Tag.objects(id=id).aggregate(pipeline)
         tag = json.loads(json.dumps(list(tag_raw), default=str))[0]
-        return make_response(jsonify(tag), 200)
+        return JSONResponse(tag, status_code=200)
     except Exception as err:
-        return make_response(jsonify({"message": str(err)}), 400)
+        return JSONResponse({"message": str(err)}, status_code=400)
 
 
-def remove(id):
+async def remove(id):
     try:
         # Tag.objects(id=id).delete()
         # In very rare occasions, the database removes documents entirely
@@ -72,6 +73,6 @@ def remove(id):
                                   deleted_at=datetime.utcnow,
                                   deleted=True)
 
-        return make_response({'message': 'document successfully deleted'}, 200)
+        return JSONResponse({'message': 'document successfully deleted'}, status_code=200)
     except Exception as err:
-        return make_response(jsonify({"message": str(err)}), 400)
+        return JSONResponse({"message": str(err)}, status_code=400)

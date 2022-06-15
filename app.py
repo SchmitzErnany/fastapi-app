@@ -1,7 +1,8 @@
+from multiprocessing import freeze_support
 from fastapi import FastAPI
-from flask import Flask
 from flasgger import Swagger
 from dotenv import load_dotenv
+import uvicorn
 
 from routes import all_routes
 from databases.mongodb import Mongodb
@@ -12,22 +13,14 @@ load_dotenv()
 connection = Mongodb().create_connection()
 
 app = FastAPI()
+app.include_router(all_routes)
 
-# app = Flask(__name__)
-# app.register_blueprint(all_routes)
+app.exception_handler(404)(not_found)
+app.exception_handler(400)(bad_request)
+app.exception_handler(500)(server_error)
+
 
 # Swagger(app, config=swagger_config, template_file='swagger.json')
 
-# app.errorhandler(404)(not_found)
-# app.errorhandler(400)(bad_request)
-# app.errorhandler(500)(server_error)
-
-# if __name__ == '__main__':
-#     app.run(debug=True)
-
-async def root():
-    return {"message": "Hello World"}
-
-app.get("/")(root)
-
-
+def run():
+    uvicorn.run(app="app:app", host="0.0.0.0", port=8000, reload=True)

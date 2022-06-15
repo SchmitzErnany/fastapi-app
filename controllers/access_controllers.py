@@ -2,10 +2,11 @@ import json
 import os
 import secrets
 import jwt
-from flask import jsonify, make_response, request, g
+from flask import request
 from werkzeug.security import check_password_hash
 from datetime import datetime, timedelta
 from dateutil.parser import parse
+from fastapi.responses import JSONResponse
 
 from models.access_model import Access
 
@@ -13,7 +14,7 @@ secret_key = os.environ.get('SECRET_KEY')
 from models.user_model import User
 
 
-def login():
+async def login():
     try:
         username = request.json['username']
         password = request.json['password']
@@ -23,12 +24,12 @@ def login():
         database_users = json.loads(json.dumps(list(database_users_raw), default=str))
         database_user = database_users[0] if database_users_raw else None
         if not database_user:
-            return make_response({'message': 'User not found!'}, 400)
+            return JSONResponse({'message': 'User not found!'}, status_code=400)
 
         # checking if the password matches the user password in the database
         if not check_password_hash(database_user['password'], password):
             # if the password does not match the user password in the database
-            return make_response({'message': 'Please check your name and password and try again.'}, 400)
+            return JSONResponse({'message': 'Please check your name and password and try again.'}, status_code=400)
         
         access_token = jwt.encode(
             {
@@ -48,15 +49,15 @@ def login():
         if not updates:
             Access(**entry).save()
 
-        return make_response({
+        return JSONResponse({
             'access_token': access_token.decode('utf-8'),
             'refresh_token': refresh_token
-        })
+        }, status_code=200)
     except Exception as err:
-        return make_response(jsonify({"message": str(err)}), 400)  
+        return JSONResponse({"message": str(err)}, status_code=400)  
 
 
-def refresh():
+async def refresh():
     try:
         refresh_token = request.json['refresh_token']
 
@@ -64,10 +65,10 @@ def refresh():
         database_accesses = json.loads(json.dumps(list(database_accesses_raw), default=str))
         database_access = database_accesses[0] if database_accesses else None
         if not database_access:
-            return make_response({'message': 'Token not found!'}, 400)
+            return JSONResponse({'message': 'Token not found!'}, status_code=400)
         if parse(database_access['expiration_date']) < datetime.utcnow():
-            return make_response(
-                {'message': 'Token expired! Please log in again.'}, 400)
+            return JSONResponse(
+                {'message': 'Token expired! Please log in again.'}, status_code=400)
 
         new_access_token = jwt.encode(
             {
@@ -87,9 +88,9 @@ def refresh():
         if not updates:
             Access(**entry).save()
 
-        return make_response({
+        return JSONResponse({
             'access_token': new_access_token.decode('utf-8'),
             'refresh_token': new_refresh_token
-        })
+        }, status_code=200)
     except Exception as err:
-        return make_response(jsonify({"message": str(err)}), 400)
+        return JSONResponse({"message": str(err)}, status_code=400)

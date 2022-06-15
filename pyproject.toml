@@ -1,8 +1,9 @@
 [tool.poetry]
-name = "flask-app"
+name = "fastapi-app"
 version = "0.1.0"
 description = ""
 authors = ["SchmitzErnany <ernany0@gmail.com>"]
+packages = [{include = "app.py"}]
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -20,6 +21,9 @@ fastapi = "^0.78.0"
 uvicorn = "^0.17.6"
 
 [tool.poetry.dev-dependencies]
+
+[tool.poetry.scripts]
+fastapp = "app:run"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

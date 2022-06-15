@@ -1,9 +1,9 @@
-from flask import Blueprint, g
+from fastapi import APIRouter
 
 from controllers import access_controllers
 from middlewares.auth_check import auth_check
 
-accessroutes = Blueprint('access', __name__)
+accessroutes = APIRouter()
 
 accessroutes.post("/login")(access_controllers.login)
 accessroutes.post("/refresh")(access_controllers.refresh)
