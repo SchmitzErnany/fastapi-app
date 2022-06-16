@@ -21,7 +21,7 @@ async def get_all():
         return JSONResponse({"message": str(err)}, status_code=400)
 
 
-async def get_by_id(id):
+async def get_by_id(id: str):
     try:
         pipeline = [
             *filter_deleted_tag(),
@@ -50,7 +50,7 @@ async def create():
         return JSONResponse({"message": str(err)}, status_code=400)
 
 
-async def update(id):
+async def update(id: str):
     try:
         Tag.objects(id=id).update(**request.json, updated_at=datetime.utcnow)
         pipeline = [
@@ -64,7 +64,7 @@ async def update(id):
         return JSONResponse({"message": str(err)}, status_code=400)
 
 
-async def remove(id):
+async def remove(id: str):
     try:
         # Tag.objects(id=id).delete()
         # In very rare occasions, the database removes documents entirely

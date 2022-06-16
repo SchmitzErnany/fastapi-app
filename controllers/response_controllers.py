@@ -24,7 +24,7 @@ async def get_all():
         return JSONResponse({"message": str(err)}, status_code=400)
 
 
-async def get_by_id(id):
+async def get_by_id(id: str):
     try:
         pipeline = [
             *lookup('tag:_id', 'tag_ids'),
@@ -58,7 +58,7 @@ async def create():
         return JSONResponse({"message": str(err)}, status_code=400)
 
 
-async def update(id):
+async def update(id: str):
     try:
         if "tag_ids" in request.json.keys():
             request.json["tag_ids"] = map(ObjectId, request.json["tag_ids"])
@@ -77,7 +77,7 @@ async def update(id):
         return JSONResponse({"message": str(err)}, status_code=400)
 
 
-async def remove(id):
+async def remove(id: str):
     try:
         # Response.objects(id=id).delete()
         # In very rare occasions, the database removes documents entirely
