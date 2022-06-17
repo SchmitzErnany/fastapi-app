@@ -2,7 +2,6 @@ import os
 import jwt
 from fastapi import Request, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi.responses import JSONResponse
 
 secret_key = os.environ.get('SECRET_KEY')
 

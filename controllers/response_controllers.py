@@ -1,12 +1,13 @@
 import json
-
 from bson import ObjectId
-from helpers.utils import lookup, prune_fields, filter_deleted
-from fastapi.responses import JSONResponse
 
 from datetime import datetime
 
 from models.response_model import Response
+from helpers.schemas import ResponseSchema
+from helpers.utils import lookup, prune_fields, filter_deleted
+from fastapi.responses import JSONResponse
+
 
 async def get_all():
     try:
@@ -37,10 +38,10 @@ async def get_by_id(id: str):
         return JSONResponse({"message": str(err)}, status_code=400)
 
 
-async def create():
-    print(request.json)
+async def create(form: ResponseSchema):
+    request_json = dict(form)
     try:
-        response_saved_raw = Response(**request.json).save()
+        response_saved_raw = Response(**request_json).save()
         response_saved_id = json.loads(
             response_saved_raw.to_json())['_id']['$oid']
         pipeline = [
@@ -56,12 +57,13 @@ async def create():
         return JSONResponse({"message": str(err)}, status_code=400)
 
 
-async def update(id: str):
+async def update(id: str, form: ResponseSchema):
+    request_json = dict(form)
     try:
-        if "tag_ids" in request.json.keys():
-            request.json["tag_ids"] = map(ObjectId, request.json["tag_ids"])
+        if "tag_ids" in request_json.keys():
+            request_json["tag_ids"] = map(ObjectId, request_json["tag_ids"])
 
-        Response.objects(id=id).update(**request.json, 
+        Response.objects(id=id).update(**request_json, 
                                        updated_at=datetime.utcnow)
         pipeline = [
             *lookup('tag:_id', 'tag_ids'),

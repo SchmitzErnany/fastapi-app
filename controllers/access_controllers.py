@@ -1,38 +1,18 @@
-import json
 import os
-import secrets
-from fastapi import Form, Request
+import json
+
 import jwt
-from flask import request
-from werkzeug.security import check_password_hash
+import secrets
 from datetime import datetime, timedelta
+from werkzeug.security import check_password_hash
 from dateutil.parser import parse
 from fastapi.responses import JSONResponse
 
 from models.access_model import Access
+from models.user_model import User
+from helpers.schemas import CredentialsSchema, RefreshSchema
 
 secret_key = os.environ.get('SECRET_KEY')
-from models.user_model import User
-
-
-CredentialsSchema = {
-    "type": "object",
-    "properties": {
-        "username": {"type": "string"},
-        "password": {"type": "string"}
-    },
-    "required": ["username", "password"]
-}
-
-from pydantic import BaseModel, Field, Required
-
-
-class CredentialsSchema(BaseModel):
-    username: str = Field()
-    password: str = Field()
-
-class RefreshSchema(BaseModel):
-    refresh_token: str = Field()
 
 
 async def login(form: CredentialsSchema):

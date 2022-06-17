@@ -1,10 +1,10 @@
 import json
-from flask import request
 
 from datetime import datetime
-from helpers.utils import prune_fields_tag, filter_deleted_tag
 
 from models.tag_model import Tag
+from helpers.schemas import TagSchema
+from helpers.utils import prune_fields_tag, filter_deleted_tag
 from fastapi.responses import JSONResponse
 
 
@@ -35,9 +35,10 @@ async def get_by_id(id: str):
         return JSONResponse({"message": str(err)}, status_code=400)
 
 
-async def create():
+async def create(form: TagSchema):
+    request_json = dict(form)
     try:
-        tag_saved_raw = Tag(**request.json).save()
+        tag_saved_raw = Tag(**request_json).save()
         tag_saved_id = json.loads(tag_saved_raw.to_json())['_id']['$oid']
         pipeline = [
             *filter_deleted_tag(),
@@ -50,9 +51,10 @@ async def create():
         return JSONResponse({"message": str(err)}, status_code=400)
 
 
-async def update(id: str):
+async def update(id: str, form: TagSchema):
+    request_json = dict(form)
     try:
-        Tag.objects(id=id).update(**request.json, updated_at=datetime.utcnow)
+        Tag.objects(id=id).update(**request_json, updated_at=datetime.utcnow)
         pipeline = [
             *filter_deleted_tag(),
             *prune_fields_tag(),

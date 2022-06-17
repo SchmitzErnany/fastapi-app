@@ -1,13 +1,11 @@
 import json
 from datetime import datetime
-from flask import jsonify, make_response, request, g
 from werkzeug.security import generate_password_hash
-from helpers.utils import hide_password
+from fastapi.responses import JSONResponse
 
 from models.user_model import User
-
-from fastapi import status
-from fastapi.responses import JSONResponse
+from helpers.schemas import UserSchema
+from helpers.utils import hide_password
 
 
 async def get_all():
@@ -34,11 +32,12 @@ async def get_by_id(id: str):
         return JSONResponse({"message": str(err)}, status_code=400)
 
 
-async def create():
+async def create(form: UserSchema):
+    request_json = dict(form)
     try:
-        username = request.json['username']
-        password_hash = generate_password_hash(request.json['password'])
-        role = request.json['role']
+        username = request_json['username']
+        password_hash = generate_password_hash(request_json['password'])
+        role = request_json['role']
         credentials = {
             'username': username,
             'password': password_hash,
@@ -56,9 +55,10 @@ async def create():
         return JSONResponse({"message": str(err)}, status_code=400)
 
 
-async def update(id: str):
+async def update(id: str, form: UserSchema):
+    request_json = dict(form)
     try:
-        User.objects(id=id).update(**request.json, updated_at=datetime.utcnow)
+        User.objects(id=id).update(**request_json, updated_at=datetime.utcnow)
         pipeline = []  # for population of objects
         user_raw = User.objects(id=id).aggregate(pipeline)
         user = json.loads(json.dumps(list(user_raw), default=str))[0]
