@@ -1,6 +1,7 @@
 import json
 import os
 import secrets
+from fastapi import Form, Request
 import jwt
 from flask import request
 from werkzeug.security import check_password_hash
@@ -14,10 +15,30 @@ secret_key = os.environ.get('SECRET_KEY')
 from models.user_model import User
 
 
-async def login():
+CredentialsSchema = {
+    "type": "object",
+    "properties": {
+        "username": {"type": "string"},
+        "password": {"type": "string"}
+    },
+    "required": ["username", "password"]
+}
+
+from pydantic import BaseModel, Field, Required
+
+
+class CredentialsSchema(BaseModel):
+    username: str = Field()
+    password: str = Field()
+
+class RefreshSchema(BaseModel):
+    refresh_token: str = Field()
+
+
+async def login(form: CredentialsSchema):
     try:
-        username = request.json['username']
-        password = request.json['password']
+        username = form.username
+        password = form.password
 
         # checking if the user matches some user in the database
         database_users_raw = User.objects(username=username).aggregate([])
@@ -54,12 +75,12 @@ async def login():
             'refresh_token': refresh_token
         }, status_code=200)
     except Exception as err:
-        return JSONResponse({"message": str(err)}, status_code=400)  
+        return JSONResponse({"message": "Your username or password are incorrect!"}, status_code=400)  
 
 
-async def refresh():
+async def refresh(form: RefreshSchema):
     try:
-        refresh_token = request.json['refresh_token']
+        refresh_token = form.refresh_token
 
         database_accesses_raw = Access.objects(refresh_token=refresh_token).aggregate([])
         database_accesses = json.loads(json.dumps(list(database_accesses_raw), default=str))

@@ -7,6 +7,7 @@ import uvicorn
 from routes import all_routes
 from databases.mongodb import Mongodb
 from helpers.errors import not_found, bad_request, server_error
+from routes.v1 import response_routes
 from swagger_config import swagger_config
 
 load_dotenv()
@@ -18,6 +19,7 @@ app.include_router(all_routes)
 app.exception_handler(404)(not_found)
 app.exception_handler(400)(bad_request)
 app.exception_handler(500)(server_error)
+
 
 
 # Swagger(app, config=swagger_config, template_file='swagger.json')

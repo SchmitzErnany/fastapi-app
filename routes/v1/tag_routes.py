@@ -1,10 +1,9 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 from controllers import tag_controllers
-from middlewares.auth_check import auth_check
+from middlewares.auth_check import JWTBearer
 
-tagroutes = APIRouter(tags=["Tag"])
-# tagroutes.before_request(auth_check)
+tagroutes = APIRouter(tags=["Tag"], dependencies=[Depends(JWTBearer())])
 
 tagroutes.get("/", description="Get all tags")(tag_controllers.get_all)
 tagroutes.get("/{id}", description="Get one tag")(tag_controllers.get_by_id)

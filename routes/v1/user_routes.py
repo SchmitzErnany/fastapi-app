@@ -1,12 +1,9 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 from controllers import user_controllers
-from middlewares.admin_check import admin_check
-from middlewares.auth_check import auth_check
+from middlewares.auth_check import JWTBearer
 
-userroutes = APIRouter(tags=["User"])
-# userroutes.before_request(auth_check)
-# userroutes.before_request(admin_check)
+userroutes = APIRouter(tags=["User"], dependencies=[Depends(JWTBearer(admin_check=True))])
 
 userroutes.get("/", description="Get all users")(user_controllers.get_all)
 userroutes.get("/{id}", description="Get one user")(user_controllers.get_by_id)

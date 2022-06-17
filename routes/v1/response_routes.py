@@ -1,10 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 from controllers import response_controllers
-from middlewares.auth_check import auth_check
+from middlewares.auth_check import JWTBearer
 
-responseroutes = APIRouter(tags=["Response"])
-# responseroutes.before_request(auth_check)
+
+responseroutes = APIRouter(tags=["Response"], dependencies=[Depends(JWTBearer())])
 
 responseroutes.get("/", description="Get all responses")(response_controllers.get_all)
 responseroutes.get("/{id}", description="Get one response")(response_controllers.get_by_id)

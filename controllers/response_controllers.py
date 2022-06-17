@@ -1,14 +1,12 @@
 import json
 
 from bson import ObjectId
-from flask import request
 from helpers.utils import lookup, prune_fields, filter_deleted
 from fastapi.responses import JSONResponse
 
 from datetime import datetime
 
 from models.response_model import Response
-
 
 async def get_all():
     try:
