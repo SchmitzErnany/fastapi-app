@@ -1,7 +1,7 @@
 version: "2.0"
 services:
-  flask_app:
-    container_name: flask_app
+  fastapi_app:
+    container_name: fastapi_app
     build:
       context: .
     ports:
@@ -9,5 +9,5 @@ services:
 
 networks:
   default:
-    name: flask_app_network
+    name: fastapi_app_network
     driver: bridge
